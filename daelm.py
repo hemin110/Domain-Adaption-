@@ -86,8 +86,8 @@ def DAELM(TrainingData_File , TrainingData_File_tardomain , TestingData_File , E
     #begin compute
     InputWeight = np.random.rand(NumberofHiddenNeurons,NumberofInputNeurons)*2-1
     BiasofHiddenNeurons = np.random.rand(NumberofHiddenNeurons ,1)
-    tempH = InputWeight*P
-    tempHt = InputWeight*Pt
+    tempH = np.dot(InputWeight,P)
+    tempHt = np.dot(InputWeight,Pt)
     del P
     del Pt
     
@@ -119,20 +119,20 @@ def DAELM(TrainingData_File , TrainingData_File_tardomain , TestingData_File , E
     Tt=Tt.T
     
     if NL == 0:
-        A = Ht*H.T
-        B = Ht*Ht.T+np.eye(NumberofTrainingData_Target)/Ct
-        C=H*Ht.T
-        D=H*H.T+np.eye(NumberofTrainingData)/Cs
-        AlphaT=np.linalg.inv(B)*Tt-np.linalg.inv(B)*A*np.linalg.inv(C*np.linalg.inv(B)*A-D)*(C*np.linalg.inv(B)*Tt-T)
-        AlphaS=inv(C*np.linalg.inv(B)*A-D)*(C*np.linalg.inv(B)*Tt-T)
-        OutputWeight=H.T*AlphaS+Ht.T*AlphaT
+        A = np.dot(Ht,H.T)
+        B = np.dot(Ht,Ht.T)+np.eye(NumberofTrainingData_Target)/Ct
+        C=np.dot(H,Ht.T)
+        D=np.dot(H,H.T)+np.eye(NumberofTrainingData)/Cs
+        AlphaT=np.dot(np.linalg.inv(B),Tt)-np.dot(np.dot(np.dot(np.linalg.inv(B),A),np.linalg.inv(np.dot(np.dot(C,np.linalg.inv(B)),A)-D)),(np.dot(np.dot(C,np.linalg.inv(B)),Tt)-T))
+        AlphaS=np.dot(inv(np.dot(np.dot(C,np.linalg.inv(B)),A)-D),np.dot((np.dot(C,np.linalg.inv(B)),Tt)-T))
+        OutputWeight=np.dot(H.T,AlphaS)+np.dot(Ht.T,AlphaT)
     else:
-        OutputWeight=np.linalg.inv(np.eye(n)+Cs*H.t*H+Ct*Ht.T*Ht)*(Cs*H.T*T+Ct*Ht.T*Tt)
+        OutputWeight=np.dot(np.linalg.inv(np.eye(n)+Cs*np.dot(H.T,H)+Ct*np.dot(Ht.T,Ht)),(Cs*np.dot(H.T,T)+Ct*np.dot(Ht.T,Tt)))
     #  Calculate the accuracy
     
-    Y=(H * OutputWeight).T
+    Y=(np.dot(H,OutputWeight)).T
     
-    tempH_test=InputWeight*TVP
+    tempH_test=np.dot(InputWeight,TVP)
     ind = np.ones(1,NumberofHiddenNeurons)
     BiasMatrix=BiasofHiddenNeurons[:,ind-1]
     tempH_test = tempH_test+BiasMatrix
@@ -141,7 +141,7 @@ def DAELM(TrainingData_File , TrainingData_File_tardomain , TestingData_File , E
     if ActivationFunction == "sin":
         H_test = np.sin(tempH_test)
         
-    TY = (H_test.T*OutputWeight).T
+    TY = np.dot(H_test.T,OutputWeight).T
     # return the result of test but you need a sig to get prop
     if Elm_Type =="CLASSIFIER":
         return TY
