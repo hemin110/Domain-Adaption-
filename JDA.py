@@ -21,7 +21,7 @@ def JDA(Xs , Xt , Ys , Yt0 , k=100 , labda = 0.1 , ker = 'primal' , gamma = 1.0 
     e1 = 1/ns*np.ones((ns,1))
     e2 = 1/nt*np.ones((nt,1))
     e = np.vstack((e1,e2))
-    M = e*e.T*C
+    M = np.dot(e,e.T)*C
     
     if any(Yt0) and len(Yt0)==nt:
         for c in np.reshape(np.unique(Ys) ,-1 ,1):
@@ -31,7 +31,7 @@ def JDA(Xs , Xt , Ys , Yt0 , k=100 , labda = 0.1 , ker = 'primal' , gamma = 1.0 
             e2[Yt0 ==c] = -1/len(Yt0[Yt0 ==c])
             e = np.hstack((e1 ,e2))
             e = e[np.isinf(e) == 0]
-            M = M+e*e.T
+            M = M+np.dot(e,e.T)
             
     M = M/norm(M ,ord = 'fro' )
     
@@ -39,24 +39,12 @@ def JDA(Xs , Xt , Ys , Yt0 , k=100 , labda = 0.1 , ker = 'primal' , gamma = 1.0 
     H = np.eye(n) - 1/(n)*np.ones((n,n))
     
     #% Joint Distribution Adaptation: JDA
-    if ker is 'primal':
-        eigs(X*M*X.T+labda*np.eye(m), k=k, M=X*H*X.T,  which='SM')
-        Z = A.T*X
+    if ker == 'primal':
+        A = eigs(np.dot(np.dot(X,M),X.T)+labda*np.eye(m), k=k, M=np.dot(np.dot(X,H),X.T),  which='SM')
+        Z = np.dot(A.T,X)
     else:
         pass
     
     print 'JDA TERMINATED'
-
-
-
-
-
-
-
-
-
-
-
-
 
 
